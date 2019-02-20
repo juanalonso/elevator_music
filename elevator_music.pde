@@ -28,6 +28,8 @@ MidiBus myBus;
 Movie video;
 OpenCV opencv;
 
+
+
 void setup() {
 
   size(450, 800);
@@ -37,10 +39,10 @@ void setup() {
   gris = createImage(450, 800, RGB);
 
   MidiBus.list();
-  myBus = new MidiBus(this, -1, "IAC Bus 1"); 
+  myBus = new MidiBus(this, -1, "Bus IAC 1"); 
 
-  for (int f=0; f<NUMASCENSORES; f++) {
-    ascensores[f] = new Elevator(14);
+  for (int a=0; a<NUMASCENSORES; a++) {
+    ascensores[a] = new Elevator(14, 73+a*40, height-324, 25);
   }
 
   video = new Movie(this, "Estabilizado y escala.mp4");
@@ -55,7 +57,7 @@ void setup() {
 
 void draw() {
 
-
+  //Tratamos la imagen de la cámara 
   opencv.loadImage(video);
   opencv.useColor(HSB);
   opencv.setGray(opencv.getB());
@@ -63,14 +65,14 @@ void draw() {
   opencv.matV = contrast(1.8, opencv.getB());
   opencv.inRange(190, 255);
 
+  //Analizamos los píxeles de cada piso 
   gris = opencv.getSnapshot();
-
   for (int a=0; a<NUMASCENSORES; a++) {
     for (int p=0; p<ascensores[a].totalPisos; p++) {
       int counter = 0;
-      for (int y=0; y<25; y++) {
-        for (int x=0; x<25; x++) {
-          counter += gris.get(x+73+a*40, height-324-29*p+y) & 0x000001;
+      for (int y=0; y<ascensores[a].pisoSize; y++) {
+        for (int x=0; x<ascensores[a].pisoSize; x++) {
+          counter += gris.get(x+ascensores[a].x, ascensores[a].y-29*p+y) & 0x1;
         }
       }
       if (counter>16) {
@@ -81,28 +83,37 @@ void draw() {
     }
   }
 
-  image(video, 0, 0);  
-
+  //Lanzamos los eventos MIDI
   for (int a=0; a<NUMASCENSORES; a++) {
     for (int p=0; p<ascensores[a].totalPisos; p++) {
       switch(ascensores[a].estadoPiso[p]) {
       case RISING:
-        //rect(73+a*40, height-324-29*p, 25, 25);
-        //println("ASC " + (a+1) + " R " + p);
         myBus.sendNoteOn(a, notasAcorde[p%notasAcorde.length]+64, 100);
         break;
-      case ON:
-        //rect(73+a*40, height-324-29*p, 25, 25);
-        break;
       case FALLING:
-        //println("ASC " + (a+1) + " F " + p);
         myBus.sendNoteOff(a, notasAcorde[p%notasAcorde.length]+64, 100);
         break;
-      case OFF:
-        break;
+      default:
       }
     }
   }
+
+  image(video, 0, 0);
+
+  //Pintamos un rectángulo de debug
+  /*
+  for (int a=0; a<NUMASCENSORES; a++) {
+   for (int p=0; p<ascensores[a].totalPisos; p++) {
+   switch(ascensores[a].estadoPiso[p]) {
+   case RISING:
+   case ON:
+   rect(ascensores[a].x, ascensores[a].y-29*p, ascensores[a].pisoSize, ascensores[a].pisoSize);
+   break;
+   default:
+   }
+   }
+   }
+   */
 }
 
 
