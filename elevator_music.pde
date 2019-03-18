@@ -1,3 +1,5 @@
+//Cámaara a 90cm de la pared y 160 del suelo
+
 import themidibus.*;
 
 import gab.opencv.*;
@@ -8,12 +10,13 @@ import org.opencv.core.Core;
 import processing.video.*;
 
 static final int NUMASCENSORES = 6;
-static final int OFFSETX = 200;
-static final int OFFSETY = 60;
-static final int DISTASCENSORES = 40;
-static final int DISTPISOS = 29;
-static final int RADIOPISOS = 25;
-static final int THRESHOLD = 500; //16
+static final int NUMPISOS = 14;
+static final int OFFSETX = 210;
+static final int OFFSETY = 30;
+static final int DISTASCENSORES = 34;
+static final int DISTPISOS = 33;
+static final int RADIOPISOS = 20;
+static final int THRESHOLD = 8;
 
 static final boolean SHOWRECT = true;
 
@@ -42,16 +45,16 @@ void setup() {
     println(cameras[i]);
   }
 
+  cam = new Capture(this, 640, 480, "Microsoft® LifeCam Studio(TM) #2");
+  cam.start();
+
   opencv = new OpenCV(this, 640, 480);
 
   MidiBus.list();
-  myBus = new MidiBus(this, -1, "Bus IAC 1"); 
-
-  cam = new Capture(this, 640, 480);
-  cam.start();
+  myBus = new MidiBus(this, -1, "IAC Bus 1"); 
 
   for (int a=0; a<NUMASCENSORES; a++) {
-    ascensores[a] = new Elevator(14, OFFSETX+a*DISTASCENSORES, height-OFFSETY, RADIOPISOS);
+    ascensores[a] = new Elevator(NUMPISOS, OFFSETX+a*DISTASCENSORES, height-OFFSETY, RADIOPISOS);
   }
 }
 
