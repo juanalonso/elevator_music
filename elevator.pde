@@ -1,10 +1,13 @@
 class Elevator {
 
-  int totalPisos;
+  int totalPisos, pisoSize, x, y;
   State[] estadoPiso;
 
-  Elevator(int totalPisos) {
+  Elevator(int totalPisos, int x, int y, int pisoSize) {
     this.totalPisos = totalPisos;
+    this.pisoSize = pisoSize;
+    this.x = x;
+    this.y = y;
     estadoPiso = new State[this.totalPisos];
     for (int f=0; f<this.totalPisos; f++) {
       estadoPiso[f] = State.OFF;
